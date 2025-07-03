@@ -4,6 +4,10 @@
 
 sas macros to import sqlite tables with and without data typing sas access prouct not needed
 
+github
+https://tinyurl.com/yc8h92zw
+https://github.com/rogerjdeangelis/sas-macros-to-import-sqlite-tables-with-and-without-data-typing-sas-access-prouct-not-needed
+
        CONTENTS
 
             1 macro sqlitex deferred typing
