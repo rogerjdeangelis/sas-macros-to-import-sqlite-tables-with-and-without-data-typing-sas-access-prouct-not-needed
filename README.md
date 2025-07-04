@@ -520,8 +520,7 @@ sas macros to import sqlite tables with and without data typing sas access prouc
 
     %mend sqlitex;
     ;;;;
-    %mend sqlitex;
-
+    run;quit;
 
     filename ft15f001 "c:/oto/sqlitet.sas";
     parmcards4;
@@ -582,7 +581,8 @@ sas macros to import sqlite tables with and without data typing sas access prouc
 
     /*---- optimize variable lengths ----*/
     %utl_optlenpos(&out,&out);
-
+    ;;;;
+    run;quit;
     %mend sqlitett;
     /*              _
       ___ _ __   __| |
