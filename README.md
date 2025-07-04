@@ -581,9 +581,10 @@ sas macros to import sqlite tables with and without data typing sas access prouc
 
     /*---- optimize variable lengths ----*/
     %utl_optlenpos(&out,&out);
+    %mend sqlitett;
     ;;;;
     run;quit;
-    %mend sqlitett;
+    
     /*              _
       ___ _ __   __| |
      / _ \ `_ \ / _` |
