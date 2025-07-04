@@ -515,10 +515,9 @@ proc import out=want
     getnames=YES;
     guessingrows=MAX;
 run;quit;
-
 %mend sqlitex;
 ;;;;
-%mend sqlitex;
+run;quit;
 
 
 filename ft15f001 "c:/oto/sqlitet.sas";
@@ -580,8 +579,10 @@ run;quit;
 
 /*---- optimize variable lengths ----*/
 %utl_optlenpos(&out,&out);
+%mend sqlitet;
+;;;;
+run;quit;
 
-%mend sqlitett;
 /*              _
   ___ _ __   __| |
  / _ \ `_ \ / _` |
