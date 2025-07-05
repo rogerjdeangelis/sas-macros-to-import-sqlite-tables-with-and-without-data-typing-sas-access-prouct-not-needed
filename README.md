@@ -488,6 +488,25 @@ sas macros to import sqlite tables with and without data typing sas access prouc
 
     */
 
+    /*---- CHECK MACROS ----*/
+
+    %inc "c:/oto/sqlitex.sas";
+    %inc "c:/oto/sqlitet.sas";
+
+    %sqlitex(
+          dbpath = d:/sqlite/have.db
+         ,inp    = want
+         ,out    = wantx
+       )
+
+    %sqlitet(
+          dbpath = d:/sqlite/have.db
+         ,inp    = want
+         ,out    = wantt
+       )
+
+
+    /*---- SQLITEX ----*/
     filename ft15f001 "c:/oto/sqlitex.sas";
     parmcards4;
     %macro sqlitex(
@@ -504,14 +523,13 @@ sas macros to import sqlite tables with and without data typing sas access prouc
     %utlfkil(%sysfunc(pathname(work))/want.csv);
 
     /*---- powershell ----*/
-    %utl_submit_ps64("
-    sqlite3 -csv -header '&dbpath'
-      'select * from &inp;'
-       > '%sysfunc(pathname(work))/want.csv';
-    ");
+    %utl_submit_ps64x("sqlite3 -csv -header
+      '&dbpath' 'select * from &inp'
+       > '%sysfunc(pathname(work))/want.csv';");
 
-    proc import out=want
-        datafile="d:/csv/want.csv"
+    proc import
+        out=&out
+        datafile="%sysfunc(pathname(work))/want.csv"
         dbms=csv
         replace;
         getnames=YES;
@@ -522,6 +540,12 @@ sas macros to import sqlite tables with and without data typing sas access prouc
     ;;;;
     run;quit;
 
+
+    /*---- SQLITET ----*/
+
+    %inc "c:/oto/sqlitex.sas";
+    %inc "c:/oto/sqlitet.sas";
+
     filename ft15f001 "c:/oto/sqlitet.sas";
     parmcards4;
     %macro sqlitet(
@@ -529,19 +553,17 @@ sas macros to import sqlite tables with and without data typing sas access prouc
       ,inp      = students
       ,out      = want
     ) / des="import sqlite table to sas dataset";
-
-    %utlfkil(%sysfunc(pathname(work))/want.csv);
-
+    %utlfkil(%sysfunc(pathname(work))/data.csv);
+    %utlfkil(%sysfunc(pathname(work))/meta.csv);
     /*---- powershell ----*/
     %utl_submit_ps64("
-    sqlite3 -csv -header '&dbpath'
-      'select * from &inp;'
-       > '%sysfunc(pathname(work))/want.csv';
-    sqlite3 -header -csv 'd:/sqlite/have.db'
-      'PRAGMA table_info (&inp);'
+    sqlite3 -csv '&dbpath'
+      'select * from &inp'
+       > '%sysfunc(pathname(work))/data.csv';
+    sqlite3 -header -csv '&dbpath'
+      'PRAGMA table_info (&inp)'
        > '%sysfunc(pathname(work))/meta.csv';
     ");
-
     proc import out=_meta_
      datafile="%sysfunc(pathname(work))/meta.csv"
      dbms=csv
@@ -549,42 +571,34 @@ sas macros to import sqlite tables with and without data typing sas access prouc
      getnames=YES;
      guessingrows=MAX;
     run;quit;
-
     proc format;
-
      value $maptyp
       'REAL'    = '32.'
       'INTEGER' = '32.'
       'TEXT'    = '$255.';
-
     run;quit;
-
     data _mapem_;
       set _meta_(keep=name type);
       typ=put(type,$maptyp.);
       drop type;
     run;quit;
-
     %array(_typ,data=_mapem_,var=typ);
     %array(_nam,data=_mapem_,var=name);
-
     data &out;
       informat
         %do_over(_nam _typ,phrase=?_nam ?_typ);;
-      infile "d:/csv/data.csv" delimiter=',';
+      infile "%sysfunc(pathname(work))/data.csv" delimiter=',' missover;
       input
         %do_over(_nam,phrase=?);;
     run;quit;
-
     %arraydelete(_typ)
     %arraydelete(_nam)
-
     /*---- optimize variable lengths ----*/
     %utl_optlenpos(&out,&out);
-    %mend sqlitett;
+    %mend sqlitet;
     ;;;;
     run;quit;
-    
+
     /*              _
       ___ _ __   __| |
      / _ \ `_ \ / _` |
